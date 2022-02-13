@@ -9,7 +9,7 @@ import pathlib
 from functools import reduce
 
 from ginga.qtw.QtHelp import (QtGui, QtCore, QTextCursor, QIcon, QPixmap,
-                              QImage, QCursor, QFont, have_pyqt4)
+                              QImage, QCursor, QFont, have_pyqt4, have_pyside)
 from ginga.qtw import QtHelp
 
 from ginga.misc import Callback, Bunch, Settings, LineHistory
@@ -227,7 +227,7 @@ class GrowingTextEdit(QtGui.QTextEdit):
         # add some margin to prevent auto scrollbars
         docHeight += 20
         if self.heightMin <= docHeight <= self.heightMax:
-            self.setMaximumHeight(docHeight)
+            self.setMaximumHeight(int(docHeight))
 
 
 class TextArea(WidgetBase):
@@ -2005,15 +2005,22 @@ class Application(Callback.Callbacks):
         _app = self
 
         # Get screen size
-        desktop = self._qtapp.desktop()
+        if have_pyqt4 or have_pyside:
+            desktop = self._qtapp.desktop()
+        else:
+            desktop = self._qtapp.screens()[0]
         rect = desktop.availableGeometry()
         size = rect.size()
         self.screen_wd = size.width()
         self.screen_ht = size.height()
 
         # Get screen resolution
-        xdpi = desktop.physicalDpiX()
-        ydpi = desktop.physicalDpiY()
+        if QtHelp.have_pyside6 or QtHelp.have_pyqt6:
+            xdpi = desktop.physicalDotsPerInchX()
+            ydpi = desktop.physicalDotsPerInchY()
+        else:
+            xdpi = desktop.physicalDpiX()
+            ydpi = desktop.physicalDpiY()
         self.screen_res = max(xdpi, ydpi)
 
         for name in ('shutdown', ):

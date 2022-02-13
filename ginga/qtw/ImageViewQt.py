@@ -14,7 +14,8 @@ from ginga import ImageView, Mixins, Bindings
 from ginga.util.paths import icondir
 from ginga.qtw.QtHelp import (QtGui, QtCore, QImage, QPixmap, QCursor,
                               QPainter, QOpenGLWidget, QSurfaceFormat,
-                              Timer, get_scroll_info, get_painter)
+                              Timer, get_scroll_info, get_painter,
+                              have_pyside6, have_pyqt6)
 
 from .CanvasRenderQt import CanvasRenderer
 
@@ -613,13 +614,16 @@ class QtEventMixin(object):
 
     def button_press_event(self, widget, event):
         buttons = event.buttons()
-        x, y = event.x(), event.y()
+        if have_pyside6 or have_pyqt6:
+            x, y = event.position().x(), event.position().y()
+        else:
+            x, y = event.x(), event.y()
         self.last_win_x, self.last_win_y = x, y
 
         button = 0
         if buttons & QtCore.Qt.LeftButton:
             button |= 0x1
-        if buttons & QtCore.Qt.MidButton:
+        if buttons & QtCore.Qt.MiddleButton:
             button |= 0x2
         if buttons & QtCore.Qt.RightButton:
             button |= 0x4
@@ -637,13 +641,16 @@ class QtEventMixin(object):
     def button_release_event(self, widget, event):
         # note: for mouseRelease this needs to be button(), not buttons()!
         buttons = event.button()
-        x, y = event.x(), event.y()
+        if have_pyside6 or have_pyqt6:
+            x, y = event.position().x(), event.position().y()
+        else:
+            x, y = event.x(), event.y()
         self.last_win_x, self.last_win_y = x, y
 
         button = 0
         if buttons & QtCore.Qt.LeftButton:
             button |= 0x1
-        if buttons & QtCore.Qt.MidButton:
+        if buttons & QtCore.Qt.MiddleButton:
             button |= 0x2
         if buttons & QtCore.Qt.RightButton:
             button |= 0x4
@@ -669,13 +676,16 @@ class QtEventMixin(object):
             return True
 
         buttons = event.buttons()
-        x, y = event.x(), event.y()
+        if have_pyside6 or have_pyqt6:
+            x, y = event.position().x(), event.position().y()
+        else:
+            x, y = event.x(), event.y()
         self.last_win_x, self.last_win_y = x, y
 
         button = 0
         if buttons & QtCore.Qt.LeftButton:
             button |= 0x1
-        if buttons & QtCore.Qt.MidButton:
+        if buttons & QtCore.Qt.MiddleButton:
             button |= 0x2
         if buttons & QtCore.Qt.RightButton:
             button |= 0x4
@@ -686,7 +696,10 @@ class QtEventMixin(object):
                                             data_x, data_y)
 
     def scroll_event(self, widget, event):
-        x, y = event.x(), event.y()
+        if have_pyside6 or have_pyqt6:
+            x, y = event.position().x(), event.position().y()
+        else:
+            x, y = event.x(), event.y()
         # accept event here so it doesn't get propagated to parent
         event.accept()
         self.last_win_x, self.last_win_y = x, y
@@ -703,7 +716,7 @@ class QtEventMixin(object):
                 src = 'wheel'
             else:
                 src = 'trackpad'  # noqa
-                point = event.pixelDelta()
+                point = event.pixel()
                 dx, dy = point.x(), point.y()
 
                 # Synthesize this as a pan gesture event

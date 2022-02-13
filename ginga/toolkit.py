@@ -28,7 +28,7 @@ def use(name):
         family = 'qt'
         if name == 'qt':
             name = 'qt5'
-        if name not in ('qt4', 'pyside', 'qt5', 'pyside2'):
+        if name not in ('qt4', 'pyside', 'qt5', 'pyside2', 'qt6', 'pyside6'):
             raise ToolKitError("ToolKit '%s' not supported!" % (name))
 
     elif name.startswith('gtk'):
@@ -65,7 +65,7 @@ def get_family():
 
 def get_rv_toolkits():
     """Returns a list of reference viewer supported toolkits."""
-    return ['qt4', 'qt5', 'pyside', 'pyside2', 'gtk3', 'pg']
+    return ['qt4', 'qt5', 'qt6', 'pyside', 'pyside2', 'pyside6', 'gtk3', 'pg']
 
 
 def choose():

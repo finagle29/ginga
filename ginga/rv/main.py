@@ -746,8 +746,9 @@ def reference_viewer(sys_argv):
     # Are we debugging this?
     if options.debug:
         import pdb
-
-        pdb.run('viewer.main(options, args)')
+        pdb.set_trace()
+        viewer.main(options, args)
+        #pdb.run('viewer.main(options, args)')
 
     # Are we profiling this?
     elif options.profile:

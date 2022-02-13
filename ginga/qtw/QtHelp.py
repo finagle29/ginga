@@ -20,11 +20,17 @@ configured = False
 toolkit = ginga.toolkit.toolkit
 
 # if user wants to force a toolkit
-if toolkit == 'qt5':
+if toolkit == 'qt6':
+    os.environ['QT_API'] = 'pyqt6'
+
+elif toolkit == 'qt5':
     os.environ['QT_API'] = 'pyqt5'
 
 elif toolkit == 'qt4':
     os.environ['QT_API'] = 'pyqt'
+
+elif toolkit == 'pyside6':
+    os.environ['QT_API'] = 'pyside6'
 
 elif toolkit == 'pyside2':
     os.environ['QT_API'] = 'pyside2'
@@ -34,8 +40,10 @@ elif toolkit == 'pyside':
 
 have_pyqt4 = False
 have_pyqt5 = False
+have_pyqt6 = False
 have_pyside = False
 have_pyside2 = False
+have_pyside6 = False
 qtpy_import_error = ""
 
 try:
@@ -54,11 +62,13 @@ try:
         pass
 
     # Let's see what qtpy configured for us...
-    from qtpy import PYQT4, PYQT5, PYSIDE, PYSIDE2
+    from qtpy import PYQT4, PYQT5, PYQT6, PYSIDE, PYSIDE2, PYSIDE6
     have_pyqt4 = PYQT4
     have_pyqt5 = PYQT5
+    have_pyqt6 = PYQT6
     have_pyside = PYSIDE
     have_pyside2 = PYSIDE2
+    have_pyside6 = PYSIDE6
 
     configured = True
 except ImportError as e:
@@ -66,12 +76,18 @@ except ImportError as e:
     # for debugging purposes, uncomment this to get full traceback
     #raise e
 
-if have_pyqt5:
+if have_pyqt6:
+    ginga.toolkit.use('qt6')
+    os.environ['QT_API'] = 'pyqt6'
+elif have_pyqt5:
     ginga.toolkit.use('qt5')
     os.environ['QT_API'] = 'pyqt5'
 elif have_pyqt4:
     ginga.toolkit.use('qt4')
     os.environ['QT_API'] = 'pyqt'
+elif have_pyside6:
+    ginga.toolkit.use('pyside6')
+    os.environ['QT_API'] = 'pyside6'
 elif have_pyside2:
     ginga.toolkit.use('pyside2')
     os.environ['QT_API'] = 'pyside2'
@@ -79,7 +95,7 @@ elif have_pyside:
     ginga.toolkit.use('pyside')
     os.environ['QT_API'] = 'pyside'
 else:
-    raise ImportError("Failed to configure qt4, qt5, pyside or pyside2. "
+    raise ImportError("Failed to configure qt4, qt5, qt6, pyside, pyside2 or pyside6. "
                       "Is the 'qtpy' package installed? (%s)" % (
                           qtpy_import_error))
 
@@ -360,7 +376,7 @@ def get_scroll_info(event):
 
     # 15 deg is standard 1-click turn for a wheel mouse
     # delta() usually returns 120
-    if have_pyqt5:
+    if have_pyqt5 or have_pyqt6:
         # TODO: use pixelDelta() for better handling on hi-res devices?
         point = event.angleDelta()
         dx, dy = point.x(), point.y()
